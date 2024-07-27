@@ -1,5 +1,6 @@
 [package]
 name = "mini-wormhole-cosmwasm"
+description = "A minimal wormhole implementation to ONLY parse, verify and decode VAAs (Verified Action Approvals) on cosmos chains"
 version = "0.1.0"
 authors = ["Emmanuel <opensoftweb@gmail.com>"]
 edition = "2021"
