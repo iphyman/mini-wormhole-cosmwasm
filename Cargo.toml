@@ -2,7 +2,11 @@
 name = "mini-wormhole-cosmwasm"
 description = "A minimal wormhole implementation to ONLY parse, verify and decode VAAs (Verified Action Approvals) on cosmos chains"
 version = "0.1.0"
-authors = ["Emmanuel <opensoftweb@gmail.com>"]
+repository = "https://github.com/iphyman/mini-wormhole-cosmwasm"
+readme = "README.md"
+license = "Apache-2.0"
+keywords = ["wormhole", "cosmwasm"]
+authors = ["Emmanuel <discord@iphyman>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
