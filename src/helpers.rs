@@ -1,27 +1,36 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use k256::{
+    ecdsa::VerifyingKey,
+    elliptic_curve::sec1::{FromEncodedPoint, ToEncodedPoint},
+    AffinePoint, EncodedPoint,
+};
+use sha3::{Digest, Keccak256};
 
-use cosmwasm_std::{to_json_binary, Addr, CosmosMsg, StdResult, WasmMsg};
+use crate::state::GuardianAddress;
 
-use crate::msg::ExecuteMsg;
+pub fn keys_equal(a: &VerifyingKey, b: &GuardianAddress) -> bool {
+    let mut hasher = Keccak256::new();
 
-/// CwTemplateContract is a wrapper around Addr that provides a lot of helpers
-/// for working with this.
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-pub struct CwTemplateContract(pub Addr);
+    let affine_point_option = AffinePoint::from_encoded_point(&EncodedPoint::from(a));
+    let affine_point = if affine_point_option.is_some().into() {
+        affine_point_option.unwrap()
+    } else {
+        return false;
+    };
 
-impl CwTemplateContract {
-    pub fn addr(&self) -> Addr {
-        self.0.clone()
+    let decompressed_point = affine_point.to_encoded_point(false);
+
+    hasher.update(&decompressed_point.as_bytes()[1..]);
+    let a = &hasher.finalize()[12..];
+
+    let b = &b.bytes;
+    if a.len() != b.len() {
+        return false;
     }
 
-    pub fn call<T: Into<ExecuteMsg>>(&self, msg: T) -> StdResult<CosmosMsg> {
-        let msg = to_json_binary(&msg.into())?;
-        Ok(WasmMsg::Execute {
-            contract_addr: self.addr().into(),
-            msg,
-            funds: vec![],
+    for (ai, bi) in a.iter().zip(b.as_slice().iter()) {
+        if ai != bi {
+            return false;
         }
-        .into())
     }
+    true
 }
